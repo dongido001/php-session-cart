@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+   <div class="jumbotron" style="margin: auto -14px 20px -14px;">
+        <h3> Checkout \ Balance: ${{ credit }} </h3>
+   </div>
+   <div class="container">
+    <form action="make-payment" method="POST">
+        <div class="form-group">
+            <label for="exampleFormControlSelect1">Transportation type</label>
+            <select class="form-control" required name="transport">
+                <option value=""> Please select </option>
+                {% for transport in transports %}
+                    <option value="{{ transport.id }}"> 
+                        {{ transport.name }} -- ${{ transport.price }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlTextarea1">Additional info.</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+           <input type="submit" class="btn btn-primary btn-block" value="Make Payment"/>
+        </div>
+    </form>
+   </div>
+{% endblock %}

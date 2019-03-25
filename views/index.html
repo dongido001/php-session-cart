@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        .important { color: #336699; }
+        .starrr {
+          display: inline-block; 
+        }
+        .starrr a {
+          font-size: 16px;
+          padding: 0 1px;
+          cursor: pointer;
+          color: #FFD119;
+          text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+   <div class="container" style="padding: 14px;">
+    {% if cart_item %}
+    <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Name</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Unit Price</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set totalNum = 0 %}
+          {% for item in cart_item %}
+            {% set totalNum = totalNum + (item.quantity * item.price) %}
+            <tr>
+              <td scope="row"> 
+                <img width="120" height="80" src="images/{{ item.image }}" alt="Remove Item" /> 
+              </td>
+              <td class="align-middle"> {{ item.name }} </td>
+              <td class="align-middle"> {{ item.quantity }} </td>
+              <td class="align-middle"> ${{ item.price }} </td>
+              <td class="align-middle"> 
+                <div>
+                  <form method="POST" action="add-to-cart">
+                    <div class="cart-action">
+                      <input type="text" class="product-quantity" name="quantity" value="1" size="2" />
+                      <input type="hidden" name="id" value="{{ item.code }}" />
+                      <input type="submit" class="btn btn-secondary btn-sm" value="Add Item"/>
+                    </div>
+                  </form>
+                </div>
+                <div>
+                  <br />
+                  <form method="post" action="remove-from-cart">
+                    <div class="cart-action">
+                      <input type="text" class="product-quantity" name="quantity" value="1" size="2" />
+                      <input type="hidden" name="id" value="{{ item.code }}" />
+                      <input type="submit" class="btn btn-secondary btn-sm" value="Remove"/>
+                    </div>
+                  </form>
+                </div>
+                
+              </td>
+            </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="2" align="right">Total:</td>
+            <td align=""><strong>  ${{ totalNum }} </strong></td>
+            <td align="left" colspan="2"> 
+              <a href="checkout" type="botton" class="btn btn-success"> Make Payment </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    {% endif %}
+    <div class="card-deck">
+      <div class="row">
+        {% for product in products %}
+          <div class="col-md-4" style="margin-bottom: 40px;">
+              <div class="card">
+                <img src="images/{{ product.image }}" class="card-img-top" height="300">
+                <div class="card-body" style="height: 200px;">
+                  <h5 class="card-title"> {{ product.title }} </h5>
+                  <p class="card-text">{{ product.description }}</p>
+                </div>
+                <div class="card-footer">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class='starrr' data-hasreview="{{product.has_review}}" data-star="{{ product.id }}" data-review="{{ product.review }}"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-4">
+                        <p class="align-middle"> ${{ product.price }} </p>
+                      </div>
+                      <div class="col-md-8 text-right">
+                        <form method="post" action="add-to-cart">
+                          <div class="cart-action">
+                            <input type="text" class="product-quantity" name="quantity" value="1" size="2" />
+                            <input type="hidden" name="id" value="{{ product.id }}" />
+                            <input type="submit" class="btn" value=" Add to Cart" style="background-color: #a84949; color: wheat;"/>
+                          </div>
+                        </form>
+                      </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  {{ parent() }}
+   <script src="js/starr.js"></script>
+   <script> 
+    function handleNewReview(e, review) {
+      // $(this).removeData('starr')
+      // $(this).starrr('setRating', 2)
+      setTimeout( () => {
+        var formData = new FormData();
+
+        formData.append('review', review);
+        formData.append('product_id', e.target.dataset.star);
+
+        fetch('add-review', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', JSON.stringify(response)));
+      }, 20)
+    }
+
+    $('.starrr').starrr({
+      change: handleNewReview,
+    }) 
+   </script>
+{% endblock %}
